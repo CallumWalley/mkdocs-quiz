@@ -658,6 +658,24 @@ class MkDocsQuizPlugin(BasePlugin):
             try:
                 # Get the original quiz content (for embed_source)
                 original_quiz_content = match.group(0)  # Full <quiz>...</quiz> tag
+                
+                # Extract inner quiz content (between <quiz> and </quiz> tags)
+                inner_content = match.group(1)
+                
+                # Validate the quiz format early by attempting to process it
+                # This will raise ValueError for invalid quizzes and crash the build
+                # We pass files=None to Files() for validation-only processing
+                from mkdocs.structure.files import Files as FilesType
+                dummy_files = FilesType([])
+                self._process_quiz(
+                    inner_content,
+                    quiz_id,
+                    options,
+                    translation_manager,
+                    config,
+                    page,
+                    dummy_files,
+                )
 
                 # Create a markdown-safe placeholder
                 placeholder = f"<!-- MKDOCS_QUIZ_PLACEHOLDER_{quiz_id} -->"
@@ -719,9 +737,13 @@ class MkDocsQuizPlugin(BasePlugin):
 
         This uses the same processors that `Page.render()` registers.
         """
+        # Use default markdown extensions if none are configured
+        extensions = config.markdown_extensions or ["extra", "codehilite"]
+        extension_configs = config.mdx_configs or {}
+        
         md_inst = md.Markdown(
-            extensions=config.markdown_extensions,
-            extension_configs=config.mdx_configs or {},
+            extensions=extensions,
+            extension_configs=extension_configs,
         )
 
         # Register MkDocs-specific processors used during full page rendering
