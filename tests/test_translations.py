@@ -10,7 +10,7 @@ import pytest
 from mkdocs.config.defaults import MkDocsConfig
 from mkdocs.structure.files import File
 from mkdocs.structure.pages import Page
-from test_plugin import mock_files
+from .test_plugin import mock_files
 
 from mkdocs_quiz.plugin import MkDocsQuizPlugin
 from mkdocs_quiz.translations import TranslationManager
